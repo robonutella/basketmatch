@@ -1,0 +1,12 @@
+.DS_Store
+.env
+node_modules/
+.pnpm-store/
+coverage/
+.next/
+.expo/
+dist/
+supabase/.temp/
+*.tsbuildinfo
+.env.local
+.env.*.local

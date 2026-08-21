@@ -1,0 +1,9 @@
+{
+  "name": "BasketMatch",
+  "short_name": "BasketMatch",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f1e8",
+  "theme_color": "#12372a",
+  "description": "Compare grocery baskets against verified coupons, sales, and rebates."
+}

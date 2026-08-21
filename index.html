@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#12372a" />
+    <meta name="description" content="Compare grocery baskets against verified coupons, sales, and rebates." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>BasketMatch</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Verified grocery savings</p>
+          <h1>BasketMatch</h1>
+        </div>
+        <button id="demo-reset" class="secondary-button" type="button">Reset demo</button>
+      </header>
+
+      <main>
+        <section class="hero card">
+          <div>
+            <p class="eyebrow">Build your basket once</p>
+            <h2>Find the lowest verified grocery total.</h2>
+            <p class="subtle">We compare store pricing, retailer coupons, manufacturer offers, promo codes, and post-purchase rebates.</p>
+          </div>
+          <div class="hero-stat">
+            <span>Potential savings</span>
+            <strong id="hero-savings">$0.00</strong>
+          </div>
+        </section>
+
+        <section class="grid two-column">
+          <article class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Step 1</p>
+                <h2>Your grocery list</h2>
+              </div>
+              <span id="item-count" class="pill">0 items</span>
+            </div>
+
+            <form id="add-item-form" class="add-form">
+              <label class="sr-only" for="item-input">Add a grocery item</label>
+              <input id="item-input" name="item" placeholder="Try milk, eggs, Tide, strawberries…" autocomplete="off" />
+              <button class="primary-button" type="submit">Add</button>
+            </form>
+
+            <div id="suggestions" class="suggestions" aria-label="Suggested grocery items"></div>
+            <ul id="grocery-list" class="grocery-list"></ul>
+          </article>
+
+          <article class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Step 2</p>
+                <h2>Offer controls</h2>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <div>
+                <strong>Include post-purchase rebates</strong>
+                <p class="subtle">Show the net cost after cashback.</p>
+              </div>
+              <label class="switch">
+                <input id="rebate-toggle" type="checkbox" checked />
+                <span></span>
+              </label>
+            </div>
+
+            <div class="control-row">
+              <div>
+                <strong>Only count verified offers</strong>
+                <p class="subtle">Exclude untested and expired coupons.</p>
+              </div>
+              <label class="switch">
+                <input id="verified-toggle" type="checkbox" checked />
+                <span></span>
+              </label>
+            </div>
+
+            <div class="control-row stacked">
+              <label for="store-limit"><strong>Maximum stores</strong></label>
+              <select id="store-limit">
+                <option value="1">One store</option>
+                <option value="2" selected>Up to two stores</option>
+                <option value="3">Up to three stores</option>
+              </select>
+            </div>
+
+            <div class="legend">
+              <span><i class="dot verified"></i>Verified</span>
+              <span><i class="dot recent"></i>Recently redeemed</span>
+              <span><i class="dot unverified"></i>Unverified</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="card results-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Step 3</p>
+              <h2>Best basket plans</h2>
+            </div>
+            <button id="recalculate" class="primary-button" type="button">Recalculate</button>
+          </div>
+          <div id="empty-state" class="empty-state">Add items to compare grocery totals.</div>
+          <div id="results" class="results-grid" hidden></div>
+        </section>
+
+        <section class="card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Transparency</p>
+              <h2>Matched offers</h2>
+            </div>
+          </div>
+          <div id="offer-feed" class="offer-feed"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="grocery-item-template">
+      <li class="grocery-item">
+        <label>
+          <input class="item-checkbox" type="checkbox" />
+          <span class="item-name"></span>
+        </label>
+        <button class="icon-button remove-item" type="button" aria-label="Remove item">×</button>
+      </li>
+    </template>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

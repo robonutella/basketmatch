@@ -1,0 +1,29 @@
+{
+  "name": "basketmatch-codex",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "pnpm run build:packages && pnpm --filter @basketmatch/web dev",
+    "dev:mobile": "pnpm run build:packages && pnpm --filter @basketmatch/mobile start",
+    "dev:prototype": "python3 -m http.server 4173",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset",
+    "test:db": "supabase test db",
+    "build": "pnpm run build:packages && pnpm --filter @basketmatch/web build",
+    "build:packages": "pnpm --recursive --filter './packages/**' build",
+    "test": "pnpm run build:packages && pnpm run test:legacy && pnpm --recursive --filter './packages/**' test",
+    "test:legacy": "node --test tests/*.test.mjs",
+    "typecheck": "pnpm run build:packages && pnpm --recursive typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "supabase": "2.101.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@basketmatch/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:packages": "pnpm -w run build:packages",
+    "predev": "pnpm run build:packages",
+    "dev": "next dev",
+    "prebuild": "pnpm run build:packages",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@basketmatch/domain": "workspace:*",
+    "@basketmatch/pricing-engine": "workspace:*",
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.3",
+    "typescript": "6.0.3"
+  }
+}

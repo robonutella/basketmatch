@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  application:
+    name: Tests, types, and app builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Run TypeScript checks
+        run: pnpm typecheck
+
+      - name: Build Next.js application
+        run: pnpm build
+
+      - name: Export Expo applications
+        run: pnpm --filter @basketmatch/mobile exec expo export --platform all --output-dir /tmp/basketmatch-expo-export
+
+  database:
+    name: Supabase reset and pgTAP
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.101.0
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Reset migrations and seed
+        run: supabase db reset
+
+      - name: Run database smoke tests
+        run: supabase test db
+
+      - name: Stop local Supabase
+        if: always()
+        continue-on-error: true
+        run: supabase stop --no-backup

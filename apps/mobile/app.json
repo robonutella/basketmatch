@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "BasketMatch",
+    "slug": "basketmatch",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "basketmatch",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.basketmatch.mobile"
+    },
+    "android": {
+      "package": "com.basketmatch.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#12372a"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
