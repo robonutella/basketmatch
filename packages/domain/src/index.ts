@@ -1,4 +1,5 @@
 export * from "./basket.js";
+export * from "./backend.js";
 export * from "./evidence.js";
 export * from "./grocery-list.js";
 export * from "./offer.js";

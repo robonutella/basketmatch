@@ -1,5 +1,7 @@
+import { Link } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { useAuth } from "@/components/AuthProvider";
 import { Card, colors, Eyebrow, uiStyles } from "@/components/ui";
 
 const connections = [
@@ -9,6 +11,7 @@ const connections = [
 ] as const;
 
 export default function ConnectionsScreen() {
+  const { configured, loading, user, signOut } = useAuth();
   return (
     <ScrollView contentContainerStyle={uiStyles.content} style={uiStyles.screen}>
       <View style={styles.intro}>
@@ -19,6 +22,24 @@ export default function ConnectionsScreen() {
           never asks for or stores a retailer password.
         </Text>
       </View>
+
+      <Card>
+        <Text style={styles.name}>BasketMatch account</Text>
+        <Text style={styles.capability}>
+          {user?.email ?? (configured ? "Sign in to sync your data" : "Supabase is not configured")}
+        </Text>
+        {user ? (
+          <Pressable accessibilityRole="button" onPress={() => void signOut()} style={styles.accountButton}>
+            <Text style={styles.accountButtonText}>Sign out</Text>
+          </Pressable>
+        ) : (
+          <Link asChild href="/auth">
+            <Pressable accessibilityRole="button" disabled={!configured || loading} style={styles.accountButton}>
+              <Text style={styles.accountButtonText}>Sign in with email</Text>
+            </Pressable>
+          </Link>
+        )}
+      </Card>
 
       <View style={styles.list}>
         {connections.map((connection) => (
@@ -73,4 +94,6 @@ const styles = StyleSheet.create({
   note: { backgroundColor: colors.brand },
   noteTitle: { color: colors.white, fontSize: 16, fontWeight: "800" },
   noteBody: { color: "rgba(255,255,255,0.75)", fontSize: 13, lineHeight: 20, marginTop: 7 },
+  accountButton: { alignSelf: "flex-start", backgroundColor: colors.brand, borderRadius: 12, marginTop: 12, paddingHorizontal: 14, paddingVertical: 11 },
+  accountButtonText: { color: colors.white, fontSize: 13, fontWeight: "800" },
 });

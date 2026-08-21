@@ -7,6 +7,7 @@ coverage/
 .expo/
 dist/
 supabase/.temp/
+supabase/.branches/
 *.tsbuildinfo
 .env.local
 .env.*.local

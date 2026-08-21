@@ -37,6 +37,7 @@ export default function BasketScreen() {
     setMaxStores,
     outcome,
     reset,
+    backendStatus,
   } = useBasket();
   const [draft, setDraft] = useState("");
 
@@ -74,6 +75,7 @@ export default function BasketScreen() {
           <Text style={styles.resetText}>Reset demo</Text>
         </Pressable>
       </View>
+      <Text style={styles.syncStatus}>{backendStatus}</Text>
 
       <View style={styles.hero}>
         <View style={styles.heroCopy}>
@@ -293,6 +295,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   resetText: { color: colors.brand, fontSize: 13, fontWeight: "800" },
+  syncStatus: { color: colors.muted, fontSize: 12, fontWeight: "700", paddingHorizontal: 3 },
   hero: {
     backgroundColor: colors.brand,
     borderRadius: 24,

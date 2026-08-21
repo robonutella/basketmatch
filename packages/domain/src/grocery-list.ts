@@ -19,6 +19,9 @@ export const GroceryListSchema = z.object({
   title: z.string().trim().min(1),
   status: z.enum(["active", "completed", "archived"]),
   items: z.array(GroceryListItemSchema),
+  includeRebates: z.boolean().default(true),
+  verifiedOffersOnly: z.boolean().default(true),
+  maxStores: z.number().int().min(1).max(10).default(2),
   createdAt: UtcDateTimeSchema,
   updatedAt: UtcDateTimeSchema
 });

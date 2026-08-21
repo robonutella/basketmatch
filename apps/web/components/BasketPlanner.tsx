@@ -2,7 +2,7 @@
 
 import type { GroceryListItem, Offer } from "@basketmatch/domain";
 import { optimizeBasket } from "@basketmatch/pricing-engine";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   DEMO_NOW,
@@ -13,6 +13,20 @@ import {
   demoStores,
 } from "@/lib/demo";
 import { describeTraceEntry, formatCents, formatStatus, readCents } from "@/lib/format";
+import { useAuth } from "./AuthProvider";
+
+type BasketOutcome = ReturnType<typeof optimizeBasket>;
+
+interface SavedListResponse {
+  list: {
+    id: string;
+    title: string;
+    items: GroceryListItem[];
+    includeRebates: boolean;
+    verifiedOffersOnly: boolean;
+    maxStores: number;
+  };
+}
 
 function cloneDemoItems(): GroceryListItem[] {
   return demoItems.map((item) => ({ ...item }));
@@ -23,13 +37,18 @@ function newItemId(): string {
 }
 
 export function BasketPlanner() {
+  const { session, user } = useAuth();
   const [items, setItems] = useState<GroceryListItem[]>(cloneDemoItems);
   const [draft, setDraft] = useState("");
   const [includeRebates, setIncludeRebates] = useState(true);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [maxStores, setMaxStores] = useState(2);
+  const [listId, setListId] = useState<string>();
+  const [remoteOutcome, setRemoteOutcome] = useState<BasketOutcome>();
+  const [backendReady, setBackendReady] = useState(false);
+  const [backendStatus, setBackendStatus] = useState("Demo calculation");
 
-  const outcome = useMemo(
+  const localOutcome = useMemo(
     () =>
       optimizeBasket({
         items,
@@ -43,6 +62,80 @@ export function BasketPlanner() {
       }),
     [includeRebates, items, maxStores, verifiedOnly],
   );
+  const outcome = user && remoteOutcome ? remoteOutcome : localOutcome;
+
+  useEffect(() => {
+    const token = session?.access_token;
+    if (!token) {
+      setListId(undefined);
+      setRemoteOutcome(undefined);
+      setBackendReady(false);
+      setBackendStatus("Demo calculation");
+      return;
+    }
+    let cancelled = false;
+    setBackendStatus("Loading saved list…");
+    void fetch("/api/lists", { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error((await response.json()).error ?? "Could not load list.");
+        return response.json() as Promise<SavedListResponse>;
+      })
+      .then(({ list }) => {
+        if (cancelled) return;
+        setListId(list.id);
+        setItems(list.items);
+        setIncludeRebates(list.includeRebates);
+        setVerifiedOnly(list.verifiedOffersOnly);
+        setMaxStores(list.maxStores);
+        setBackendReady(true);
+        setBackendStatus("Saved to your account");
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setBackendStatus(error instanceof Error ? error.message : "Backend unavailable");
+      });
+    return () => { cancelled = true; };
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    const token = session?.access_token;
+    if (!token || !listId || !backendReady) return;
+    let cancelled = false;
+    const timeout = window.setTimeout(() => {
+      setBackendStatus("Saving and calculating on server…");
+      void fetch("/api/lists", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: listId,
+          title: "My grocery list",
+          items,
+          includeRebates,
+          verifiedOffersOnly: verifiedOnly,
+          maxStores,
+        }),
+      }).then(async (response) => {
+        if (!response.ok) throw new Error((await response.json()).error ?? "Could not save list.");
+        const idempotencyKey = `web-${globalThis.crypto.randomUUID()}`;
+        const calculation = await fetch("/api/recommendations/calculate", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ groceryListId: listId, idempotencyKey }),
+        });
+        const body = await calculation.json();
+        if (!calculation.ok) throw new Error(body.error ?? "Could not calculate basket.");
+        if (!cancelled) {
+          setRemoteOutcome(body.outcome as BasketOutcome);
+          setBackendStatus("Saved · server calculation stored");
+        }
+      }).catch((error: unknown) => {
+        if (!cancelled) setBackendStatus(error instanceof Error ? error.message : "Backend unavailable");
+      });
+    }, 500);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [backendReady, includeRebates, items, listId, maxStores, session?.access_token, verifiedOnly]);
 
   const recommended = outcome.plans[0];
   const suggestions = DEMO_SUGGESTIONS.filter(
@@ -104,6 +197,7 @@ export function BasketPlanner() {
           <SectionHeading eyebrow="Step 1" title="Your grocery list" id="list-title">
             <span className="pill">{items.length} items</span>
           </SectionHeading>
+          <p className="sync-status" aria-live="polite">{backendStatus}</p>
 
           <form className="add-form" onSubmit={submitItem}>
             <label className="sr-only" htmlFor="item-input">Add a grocery item</label>

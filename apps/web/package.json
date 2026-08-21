@@ -12,8 +12,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@basketmatch/backend": "workspace:*",
     "@basketmatch/domain": "workspace:*",
     "@basketmatch/pricing-engine": "workspace:*",
+    "@supabase/supabase-js": "2.57.4",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"

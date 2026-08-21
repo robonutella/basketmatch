@@ -8,6 +8,7 @@ BasketMatch compares a grocery list against store prices, retailer loyalty offer
 | --- | --- |
 | `apps/mobile` | Expo React Native consumer app using Expo Router |
 | `apps/web` | Next.js responsive consumer app and `/admin` operations view |
+| `packages/backend` | Server-side pricing orchestration and persistence ports |
 | `packages/domain` | Shared Zod schemas and inferred TypeScript domain types |
 | `packages/pricing-engine` | Framework-independent matching, pricing, optimization, and calculation trace |
 | `packages/provider-adapters` | Provider interfaces and deterministic mocks; no scraping or live credentials |
@@ -49,6 +50,15 @@ pnpm dev:prototype
 
 The web app runs at `http://localhost:3000`; the preserved prototype runs at `http://localhost:4173`.
 
+Copy the application environment examples before testing authenticated flows. Local values are printed by `pnpm db:start`; the service-role key belongs only in the Next.js server environment and must never use a public prefix.
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+cp apps/mobile/.env.example apps/mobile/.env.local
+```
+
+The initial release uses email magic links. Supabase identities keep authentication provider-neutral, so Apple and Google can be enabled later without changing profile, list, recommendation, receipt, or redemption ownership.
+
 ## Local database
 
 The Supabase CLI is pinned as a workspace development dependency. With a Docker-compatible runtime running:
@@ -73,4 +83,4 @@ No unofficial scraping is implemented or permitted. The shared mode resolver def
 
 ## Architecture
 
-See [`docs/adr/0001-monorepo.md`](docs/adr/0001-monorepo.md) for the initial architecture decision and [`docs/PRD.md`](docs/PRD.md) for product scope.
+See [`docs/adr/0001-monorepo.md`](docs/adr/0001-monorepo.md), [`docs/adr/0002-real-backend.md`](docs/adr/0002-real-backend.md), and [`docs/PRD.md`](docs/PRD.md).
